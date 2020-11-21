@@ -25,9 +25,10 @@
         $('#classify-progress').css('width', '0%');
         $('#classify-progress-wrap').fadeIn();
         
+        clearInterval(cint);
         
         // Iterate dS data and label
-        var cint = setInterval(function(){
+        cint = setInterval(function(){
             
             
             var runTime = new Date().getTime();
@@ -38,18 +39,22 @@
             var openPrice = parseFloat(dSi['o']);
             var classification = classifyCheck(dM, openTime, openPrice, take, stop, maxTime);
             
+            classification.softmax =  [0,0,0,0];  
+            
+            classification.softmax[classes.indexOf( classification.clss )] = 1;
+            
             dSi.classify = classification;
             
-            classesCount[ classes.indexOf( classification.clss  ) ]++;
+            classesCount[ classes.indexOf( classification.clss ) ]++;
             
             progress++;
             
             if(progress%100 == 0){
                 $('#classify-progress').css('width', (progress/totalCount)*100+'%');
-                $('#classify-status').html('PROGRSS: '+progress+' / '+ totalCount+' '+classification.clss+'  '+classification.profit);
+                $('#classify-status').html('PROGRSS: '+progress+' / '+ totalCount);
                 $('#classify-status').append('<p>Seconds: '+runTime+'</p>');
                 for(let q = 0; q < classes.length; q++){
-                    $('#classify-status').append('<p>'+classes[q]+': '+classesCount[q]+'</p>');
+                    $('#classify-status').append('<p class="mb-0">'+classes[q]+': '+classesCount[q]+'</p>');
                 }
             }
             if(progress == totalCount){
@@ -57,7 +62,7 @@
                 $('#classify-status').html('PROGRSS: '+progress+' / '+ totalCount +' '+classification.clss);
                 $('#classify-status').append('<p>Seconds: '+runTime+'</p>');
                 for(let q = 0; q < classes.length; q++){
-                    $('#classify-status').append('<p>'+classes[q]+': '+classesCount[q]+'</p>');
+                    $('#classify-status').append('<p class="mb-0">'+classes[q]+': '+classesCount[q]+'</p>');
                 }
                 clearInterval(cint);
             }

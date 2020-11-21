@@ -6,7 +6,8 @@
 <script src="candle-data/BTCUSDT1m.json" type="text/javascript"></script>       
 <script src="candle-data/BTCUSDT15m.json" type="text/javascript"></script>    
 <script src="javascript/TAFuncs.js" type="text/javascript"></script>    
-<script src="javascript/classifier.js" type="text/javascript"></script>        
+<script src="javascript/classifier.js" type="text/javascript"></script>   
+<script src="javascript/tf_model.js" type="text/javascript"></script>   
 <script src="javascript/vendor/jQuery/jquery-3.4.1.min.js" type="text/javascript"></script>   
 <script src="javascript/vendor/tensorFlow/tf.min.js" type="text/javascript"></script>    
 <script src="javascript/vendor/tensorFlow/tfjs-vis.min.js" type="text/javascript"></script>    
@@ -38,6 +39,8 @@
                     </div>  
                   </div>
                   <button type="button" class="btn btn-sm btn-primary mt-2" onClick="classifyData();">CLASSIFY</button>
+                  <button id="btn-loadClass" class="btn btn-outline-warning btn-sm mt-2" type="button" data-toggle="collapse" data-target="#collapsePreClass" aria-expanded="false" aria-controls="collapsePreClass">ADD PRE-CLASSIFIED DATA</button>   
+                  <button id="btn-saveClass" class="btn btn-outline-success btn-sm mt-2" style="display: none;" type="button" onclick="saveClassData();">SAVE DATA</button>   
                 </form>
             </div>
             
@@ -51,8 +54,46 @@
                 </div>
             </div>
             
+            <div class="col-12 p-3">
+                <div class="collapse" id="collapsePreClass">
+                  <div class="card card-body">
+                    <textarea id="preClass" rows="5" onChange="loadClassData();"></textarea>
+                  </div>
+                </div>
+            </div>
         </div>
         <hr>
+        
+        
+        <div class="row">
+            <div class="col-12 mt-4">
+                <h5>TRAIN DATA</h5>
+                <form>
+                  <div class="form-row align-items-center">
+                    <div class="col-sm-2 my-1">
+                      <label class="" for="">RSI PERIOD</label>
+                      <input type="number" class="form-control" id="rsi-period" placeholder="" value="14">
+                    </div>
+                    <div class="col-sm-2 my-1">
+                      <label class="" for="">RSI LOOK-BACK</label>
+                        <input type="number" class="form-control" id="rsi-look" placeholder="" value="6">
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-primary mt-2" onClick="trainData();">TRAIN</button>
+                </form>
+            </div>
+            
+            <div class="col-12 mt-2 p-3">
+                <h5>TRAIN OUTPUT</h5>
+                <div id="train-progress-wrap" class="progress mb-2"  style="height: 6px; display: none;">
+                  <div id="train-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;"></div>
+                </div>
+                <div id="train-output" class="col-12 p-2 border border-primary bg-dark text-white">
+                    <p id="train-status">PROGRESS:</p>
+                </div>
+            </div>
+            
+        </div>
     
     </div>
     
