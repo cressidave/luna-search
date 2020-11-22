@@ -105,12 +105,12 @@
                 
                 // Check loss first. Assume a loss is hit before a profit [SAFE]
                 if(drawDownCheck >= stop){
-                    return { clss: 'loss', drawdown: drawDownCheck, profit: -drawDownCheck  }
+                    return { clss: 'loss', drawdown: drawDownCheck, profit: -stop  }
                 }
                 
                 // Check if profit has been hit
                 if(profitCheck >= take){
-                    return { clss: 'win', drawdown: drawDown, profit: profit  }
+                    return { clss: 'win', drawdown: drawDown, profit: take  }
                 }
                 
                 if(minCount > maxTime){
