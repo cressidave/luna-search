@@ -57,7 +57,7 @@
                     $('#classify-status').append('<p class="mb-0">'+classes[q]+': '+classesCount[q]+'</p>');
                 }
             }
-            if(progress == totalCount){
+            if(progress >= totalCount){
                 $('#classify-progress-wrap').fadeOut();
                 $('#classify-status').html('PROGRSS: '+progress+' / '+ totalCount +' '+classification.clss);
                 $('#classify-status').append('<p>Seconds: '+runTime+'</p>');
