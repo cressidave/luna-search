@@ -127,5 +127,12 @@
         }
         
         
+        // Return END
+        if(l > openPrice){
+            return { clss: 'maxtime-win', drawdown: drawDown, profit: ((l-openPrice)/openPrice)*100  }
+        }else{
+            return { clss: 'maxtime-loss', drawdown: drawDown, profit: -((openPrice-l)/openPrice)*100  }
+        }
+        
         
     }
