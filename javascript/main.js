@@ -111,7 +111,7 @@
             
             var d = BTCUSDT15m[i];
             var p = parseFloat(d.classify.profit);
-            var r = d.RSI.rsi ;
+            var r = parseFloat(d.RSI.rsi) ;
             r =  BTCUSDT15m[i-1].RSI.rsi - BTCUSDT15m[i-2].RSI.rsi;
             
             if(BTCUSDT15m[i-2].RSI.rsi <= rsiBelow && BTCUSDT15m[i-1].RSI.rsi  > rsiAbove){
@@ -152,9 +152,75 @@
             options: {}
         });
         
-        
+        simulateTrading();
     }
 
+
+/* ---------------------------------------------------------------------------------------- */
+/* SIMULATE TRADING  			                        								    */
+/* ---------------------------------------------------------------------------------------- */
+
+    function simulateTrading(){
+        
+        var rsiPeriod   = parseInt($('#rsi-period').val());
+        var rsiBelow    = parseInt($('#rsi-below').val());
+        var rsiAbove    = parseInt($('#rsi-above').val());
+        
+        // BUILD RSI
+        RSI(BTCUSDT15m, rsiPeriod);
+        var trades = { trades: 0, missedTrades: 0, nextTradeTime: 0, data: [0], labels: [0] };
+        for(let i = rsiPeriod+2; i < BTCUSDT15m.length; i++){
+            
+            if(typeof BTCUSDT15m[i-2].RSI == 'undefined'){
+                console.log("SKIPPED DATA - NO RSI - ITEM: "+i);
+                continue;
+            }
+            
+            var d = BTCUSDT15m[i];
+            var t = parseInt(d.openTime)/1000;
+            var p = parseFloat(d.classify.profit);
+            var r = parseFloat(d.RSI.rsi) ;
+            r =  BTCUSDT15m[i-1].RSI.rsi - BTCUSDT15m[i-2].RSI.rsi;
+            
+            if(BTCUSDT15m[i-2].RSI.rsi <= rsiBelow && BTCUSDT15m[i-1].RSI.rsi  > rsiAbove){
+                
+                if(t > trades.nextTradeTime){
+                    
+                    trades.trades++;
+                    trades.data.push(  trades.data[ trades.data.length-1 ]+ p  );
+                    trades.labels.push( unix2time(d.openTime) )
+                    trades.nextTradeTime = t + parseInt(d.classify.minutes)/1000;
+                        
+                }else{
+                    
+                    trades.missedTrades++;
+                    
+                }
+
+            }
+        }
+        
+        console.log(trades);
+        
+        var ctx = document.getElementById('chart2').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trades.labels,
+                datasets: [{
+                    label: 'PROFIT',
+                    backgroundColor: 'rgba(124,255,99,1.00)',
+                    borderColor: 'rgba(109,235,65,1.00)',
+                    data: trades.data,
+                    fill: false
+                }      
+                ]
+                
+            },
+            options: {}
+        });
+        
+    }
 
 /* ---------------------------------------------------------------------------------------- */
 /* TRAIN DATA   			                        										*/

@@ -86,7 +86,7 @@
         for(let i = 0; i < dM.length; i++){
             
             var dMi = dM[i];
-            var openTimeM = dMi['openTime'];
+            var openTimeM = parseFloat(dMi['openTime']);
             
             if(openTimeM > openTime){
                 
@@ -105,20 +105,20 @@
                 
                 // Check loss first. Assume a loss is hit before a profit [SAFE]
                 if(drawDownCheck >= stop){
-                    return { clss: 'loss', drawdown: drawDownCheck, profit: -stop  }
+                    return { clss: 'loss', drawdown: drawDownCheck, profit: -stop, minutes: minCount  }
                 }
                 
                 // Check if profit has been hit
                 if(profitCheck >= take){
-                    return { clss: 'win', drawdown: drawDown, profit: take  }
+                    return { clss: 'win', drawdown: drawDown, profit: take, minutes: minCount  }
                 }
                 
                 if(minCount > maxTime){
                     // Max Time hit return current PL based on the l
                     if(l > openPrice){
-                        return { clss: 'maxtime-win', drawdown: drawDown, profit: ((l-openPrice)/openPrice)*100  }
+                        return { clss: 'maxtime-win', drawdown: drawDown, profit: ((l-openPrice)/openPrice)*100, minutes: minCount }
                     }else{
-                        return { clss: 'maxtime-loss', drawdown: drawDown, profit: -((openPrice-l)/openPrice)*100  }
+                        return { clss: 'maxtime-loss', drawdown: drawDown, profit: -((openPrice-l)/openPrice)*100, minutes: minCount  }
                     }
                 }
                 
@@ -129,9 +129,9 @@
         
         // Return END
         if(l > openPrice){
-            return { clss: 'maxtime-win', drawdown: drawDown, profit: ((l-openPrice)/openPrice)*100  }
+            return { clss: 'maxtime-win', drawdown: drawDown, profit: ((l-openPrice)/openPrice)*100, minutes: minCount }
         }else{
-            return { clss: 'maxtime-loss', drawdown: drawDown, profit: -((openPrice-l)/openPrice)*100  }
+            return { clss: 'maxtime-loss', drawdown: drawDown, profit: -((openPrice-l)/openPrice)*100, minutes: minCount }
         }
         
         

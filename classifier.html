@@ -58,7 +58,7 @@
             <div class="col-12 p-3">
                 <div class="collapse" id="collapsePreClass">
                   <div class="card card-body">
-                    <textarea id="preClass" rows="5" onChange="loadClassData();"></textarea>
+                    <input id="preClass" rows="5" onChange="loadClassData();">
                   </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
         
         <div class="row">
             <div class="col-12 mt-4 mb-5">
-                <h5>CHART</h5>
+                <h5>CHART DATA</h5>
                 <form>
                   <div class="form-row align-items-center">
                     <div class="col-sm-2 my-1">
@@ -86,17 +86,24 @@
                   </div>
                   <button class="btn btn-success btn-sm mt-2" type="button" onclick="analyseData();">ANALYSE</button>
                 </form>
-                <div id="analyseOutput" class="col-sm-2">
+                <div id="analyseOutput" class="col-sm-6">
                    
                 </div>
-                <div class="col-sm-6 offset-3">
-                    <canvas id="chart1" style="position: relative; border: 1px solid #EBEAF4;" width="600" height="500"></canvas>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <canvas id="chart1" style="position: relative; border: 1px solid #EBEAF4;" width="400" height="300"></canvas>
+                    </div>  
+                    <div class="col-sm-6">
+                        <canvas id="chart2" style="position: relative; border: 1px solid #EBEAF4;" width="400" height="300"></canvas>
+                    </div>   
                 </div>    
             </div>
 
             
         </div>
-    
+        
+        <hr>
+
     </div>
     
 </body>
