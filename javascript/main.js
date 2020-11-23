@@ -41,8 +41,9 @@
                 DATA1m = JSON.parse(ETHUSDT1m); 
             break;
             
-            case 2:
-
+            case 'XRPBTC':
+                DATA15m = JSON.parse(XRPBTC15m);
+                DATA1m = JSON.parse(XRPBTC1m); 
             break;
                                 
             default:

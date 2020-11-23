@@ -83,6 +83,51 @@
 
 
 /* ----------------------------------------------------------------------------------------- */
+// SMA (SIMPLE MOVING AVERAGE)
+/* ----------------------------------------------------------------------------------------- */
+
+
+    function SMA(data, periods){
+        
+        var dataOBj = [];
+        
+        var SMA = new Array(arrayPrices.length -1).fill(null);
+        var pr = 0;
+        
+        periods = typeof periods !== 'undefined' ? periods : 14;
+        
+        
+        if(arrayPrices.length < periods){
+            return 0;
+        }
+            
+        for(let i = 0 ; i < data.length; i++){
+            
+            // Skip periods where we can not calculate
+            if(i < periods-1){
+                continue;
+            }
+            
+            // Calculate
+            pr = 0;
+            for(let n = periods-1; n >= 0; n--){
+                pr = parseFloat(arrayPrices[i - n]) + pr;
+            }
+            pr = pr / periods;
+                
+            SMA[i] = pr;
+            
+            
+        }
+        
+        
+        return SMA;
+        
+        
+        
+    }
+
+/* ----------------------------------------------------------------------------------------- */
 // CONVERT TIME 
 /* ----------------------------------------------------------------------------------------- */
 	
