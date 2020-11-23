@@ -20,7 +20,7 @@
 
     $(document).ready(function(){
         
-        
+        loadMarket($('body').data('market'));
         
     });
    
@@ -28,9 +28,7 @@
 /* LOAD MARKET DATA        	                        										*/
 /* ---------------------------------------------------------------------------------------- */
 
-    function loadMarket(){
-        
-        var selection = $('#market').val();
+    function loadMarket(selection){
         
         var f1 = '';
         var f2 = '';
@@ -38,23 +36,20 @@
         
         switch(selection){
             
-            case 1:
-                
+            case 'ETHUSDT':
+                DATA15m = JSON.parse(ETHUSDT15m);
+                DATA1m = JSON.parse(ETHUSDT1m); 
             break;
             
             case 2:
 
             break;
-                
-                
+                                
             default:
                 DATA15m = JSON.parse(BTCUSDT15m);
                 DATA1m = JSON.parse(BTCUSDT1m);    
                 
         }
-
-        
-        
         
     }
 
