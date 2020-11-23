@@ -8,9 +8,11 @@
 /* GLOBALS    				                        										*/
 /* ---------------------------------------------------------------------------------------- */
     
-    var BTCUSDT15m;
-    var BTCUSDT1m;
+    var DATA15m;
+    var DATA1m;
     var cint;
+
+    var chart1 = null; var chart2 = null;
 
 /* ---------------------------------------------------------------------------------------- */
 /* READY - LET'S GO!!   	                        										*/
@@ -18,13 +20,44 @@
 
     $(document).ready(function(){
         
-        // LOAD DATA
-        BTCUSDT15m = JSON.parse(BTCUSDT15m);
-        BTCUSDT1m  = JSON.parse(BTCUSDT1m);
         
         
     });
    
+/* ---------------------------------------------------------------------------------------- */
+/* LOAD MARKET DATA        	                        										*/
+/* ---------------------------------------------------------------------------------------- */
+
+    function loadMarket(){
+        
+        var selection = $('#market').val();
+        
+        var f1 = '';
+        var f2 = '';
+        var fl = '';
+        
+        switch(selection){
+            
+            case 1:
+                
+            break;
+            
+            case 2:
+
+            break;
+                
+                
+            default:
+                DATA15m = JSON.parse(BTCUSDT15m);
+                DATA1m = JSON.parse(BTCUSDT1m);    
+                
+        }
+
+        
+        
+        
+    }
+
 
 /* ---------------------------------------------------------------------------------------- */
 /* COPY DATA    			                        										*/
@@ -57,7 +90,7 @@
         var stopVal = $('#stop').val();
         var maxTimeVal = $('#maxTime').val();
         
-        classify([ BTCUSDT15m, BTCUSDT1m ], takeVal, stopVal, maxTimeVal);
+        classify([ DATA15m, DATA1m ], takeVal, stopVal, maxTimeVal);
         
         $('#btn-saveClass').fadeIn();
         $('#btn-loadClass').fadeOut();
@@ -65,7 +98,7 @@
     }
 
     function saveClassData(){
-        var d = JSON.stringify(BTCUSDT15m);
+        var d = JSON.stringify(DATA15m);
         copy(d);
         alert("DATA COPIED - PASTE INTO TEXT FILE");
         $('.collapse').collapse('hide');
@@ -74,12 +107,12 @@
     function loadClassData(){
         
         $('.collapse').collapse('hide');
-        BTCUSDT15m = JSON.parse( $('#preClass').val() );
+        DATA15m = JSON.parse( $('#preClass').val() );
         
         $('#preClass').val('');
         
         var totalCount = 0;
-        for(let i = 0; i < BTCUSDT15m.length; i++){
+        for(let i = 0; i < DATA15m.length; i++){
             totalCount++;
             
         }
@@ -99,22 +132,40 @@
         var rsiBelow    = parseInt($('#rsi-below').val());
         var rsiAbove    = parseInt($('#rsi-above').val());
         
+        var volX    = parseInt($('#volX').val());
+        var volY    = parseInt($('#volY').val());
+        
         // BUILD RSI
-        RSI(BTCUSDT15m, rsiPeriod);
+        RSI(DATA15m, rsiPeriod);
         var data = { data: [], data1: [], totalTrades: 0, totalPL: 0, labels: [] };
-        for(let i = rsiPeriod+2; i < BTCUSDT15m.length; i++){
+        for(let i = rsiPeriod+2; i < DATA15m.length; i++){
             
-            if(typeof BTCUSDT15m[i-2].RSI == 'undefined'){
+            if(typeof DATA15m[i-2].RSI == 'undefined'){
                 console.log("SKIPPED DATA - NO RSI - ITEM: "+i);
                 continue;
             }
             
-            var d = BTCUSDT15m[i];
+            
+            // Volume
+            var volX_total = 0;
+            var volY_total = 0;
+            for(let n = 1; n <= volX; n++ ){
+                volX_total += parseFloat( DATA15m[i-n].vol );
+            }
+            
+            for(let n = 1; n <= volY; n++ ){
+                volY_total += parseFloat( DATA15m[i-n].vol );
+            }
+            
+            volX_total = volX_total / volX;
+            volY_total = volY_total / volY;
+            
+            var d = DATA15m[i];
             var p = parseFloat(d.classify.profit);
             var r = parseFloat(d.RSI.rsi) ;
-            r =  BTCUSDT15m[i-1].RSI.rsi - BTCUSDT15m[i-2].RSI.rsi;
+            r =  DATA15m[i-1].RSI.rsi - DATA15m[i-2].RSI.rsi;
             
-            if(BTCUSDT15m[i-2].RSI.rsi <= rsiBelow && BTCUSDT15m[i-1].RSI.rsi  > rsiAbove){
+            if(DATA15m[i-2].RSI.rsi <= rsiBelow && DATA15m[i-1].RSI.rsi  > rsiAbove && volX_total >= volY_total){
                 data.totalTrades++;
                 data.totalPL += p;
                 if(p > 0){
@@ -132,7 +183,10 @@
         
         
         var ctx = document.getElementById('chart1').getContext('2d');
-        var chart = new Chart(ctx, {
+        if(chart1 !== null){
+            chart1.destroy();
+        }
+        chart1 = new Chart(ctx, {
             type: 'scatter',
             data: {
                 datasets: [{
@@ -166,28 +220,47 @@
         var rsiBelow    = parseInt($('#rsi-below').val());
         var rsiAbove    = parseInt($('#rsi-above').val());
         
+        var volX    = parseInt($('#volX').val());
+        var volY    = parseInt($('#volY').val());
+        
         // BUILD RSI
-        RSI(BTCUSDT15m, rsiPeriod);
-        var trades = { trades: 0, missedTrades: 0, nextTradeTime: 0, data: [0], labels: [0] };
-        for(let i = rsiPeriod+2; i < BTCUSDT15m.length; i++){
+        RSI(DATA15m, rsiPeriod);
+        var trades = { trades: 0, missedTrades: 0, nextTradeTime: 0, data: [0], data1:[100], labels: [0] };
+        for(let i = rsiPeriod+2; i < DATA15m.length; i++){
             
-            if(typeof BTCUSDT15m[i-2].RSI == 'undefined'){
+            if(typeof DATA15m[i-2].RSI == 'undefined'){
                 console.log("SKIPPED DATA - NO RSI - ITEM: "+i);
                 continue;
             }
             
-            var d = BTCUSDT15m[i];
+            var d = DATA15m[i];
             var t = parseInt(d.openTime)/1000;
             var p = parseFloat(d.classify.profit);
             var r = parseFloat(d.RSI.rsi) ;
-            r =  BTCUSDT15m[i-1].RSI.rsi - BTCUSDT15m[i-2].RSI.rsi;
+            r =  DATA15m[i-1].RSI.rsi - DATA15m[i-2].RSI.rsi;
             
-            if(BTCUSDT15m[i-2].RSI.rsi <= rsiBelow && BTCUSDT15m[i-1].RSI.rsi  > rsiAbove){
+            
+            // Volume
+            var volX_total = 0;
+            var volY_total = 0;
+            for(let n = 1; n <= volX; n++ ){
+                volX_total += parseFloat( DATA15m[i-n].vol );
+            }
+            
+            for(let n = 1; n <= volY; n++ ){
+                volY_total += parseFloat( DATA15m[i-n].vol );
+            }
+            
+            volX_total = volX_total / volX;
+            volY_total = volY_total / volY;
+            
+            if(DATA15m[i-2].RSI.rsi <= rsiBelow && DATA15m[i-1].RSI.rsi  > rsiAbove && volX_total >= volY_total){
                 
                 if(t > trades.nextTradeTime){
                     
                     trades.trades++;
                     trades.data.push(  trades.data[ trades.data.length-1 ]+ p  );
+                    trades.data1.push(  trades.data1[ trades.data1.length-1 ] + ( (p/100) * trades.data1[ trades.data1.length-1 ]) );
                     trades.labels.push( unix2time(d.openTime) )
                     trades.nextTradeTime = t + parseInt(d.classify.minutes)/1000;
                         
@@ -203,7 +276,10 @@
         console.log(trades);
         
         var ctx = document.getElementById('chart2').getContext('2d');
-        var chart = new Chart(ctx, {
+        if(chart2 !== null){
+            chart2.destroy();
+        }
+        chart2 = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: trades.labels,
@@ -211,9 +287,9 @@
                     label: 'PROFIT',
                     backgroundColor: 'rgba(124,255,99,1.00)',
                     borderColor: 'rgba(109,235,65,1.00)',
-                    data: trades.data,
+                    data: trades.data1,
                     fill: false
-                }      
+                }
                 ]
                 
             },
@@ -232,19 +308,19 @@
         var rsiLookback = parseInt($('#rsi-look').val());
         
         // BUILD RSI
-        RSI(BTCUSDT15m, rsiPeriod);
+        RSI(DATA15m, rsiPeriod);
         
         
         var data = { data: [], labels: [] };
-        for(let i = (rsiPeriod + rsiLookback + 1); i < BTCUSDT15m.length-1; i++){
+        for(let i = (rsiPeriod + rsiLookback + 1); i < DATA15m.length-1; i++){
             //let label = BTCUSDT15m[i].classify.clss;
             let rsi  = [];
             for(let n = rsiLookback; n > 0; n-- ){
-                rsi.push( BTCUSDT15m[i-n].RSI.rsi  );
+                rsi.push( DATA15m[i-n].RSI.rsi  );
             }
             rsi.reverse();
             data.data.push( rsi );
-            data.labels.push( BTCUSDT15m[i].classify.softmax );
+            data.labels.push( DATA15m[i].classify.softmax );
         }
 
         
