@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>LUNA VIEW</title>
-<script src="candle-data/XRPBTC15m.json" type="text/javascript"></script>
-<script src="candle-data/XRPBTC1m.json" type="text/javascript"></script>
+<script src="candle-data/ETHUSDT15m.json" type="text/javascript"></script>
+<script src="candle-data/ETHUSDT1m.json" type="text/javascript"></script>
 <script src="javascript/TAFuncs.js" type="text/javascript"></script>    
 <script src="javascript/classifier.js" type="text/javascript"></script>   
 <script src="javascript/tf_model.js" type="text/javascript"></script>   
@@ -18,7 +18,7 @@
 <link href="css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
 </head>
 
-<body data-market="XRPBTC">
+<body data-market="ETHUSDT">
 
     <div class="container">
         <div class="row">
@@ -70,6 +70,7 @@
             <div class="col-12 mt-4 mb-5">
                 <h5>CHART DATA</h5>
                 <form>
+                  <h6>RSI SETTINGS</h6>    
                   <div class="form-row align-items-center">
                     <div class="col-sm-2 my-1">
                       <label class="" for="">RSI PERIODS</label>
@@ -86,12 +87,24 @@
                   </div>
                   <div class="form-row align-items-center">
                     <div class="col-sm-2 my-1">
-                      <label class="" for="">VOL. X CANDLES AVG ></label>
-                        <input type="number" class="form-control" id="volX" placeholder="">
+                      <label class="" for="">RSI PERIODS</label>
+                      <input type="number" class="form-control" id="rsi-period2" placeholder="">
                     </div>
                     <div class="col-sm-2 my-1">
-                      <label class="" for="">VOL. Y CANDLES AVG</label>
-                        <input type="number" class="form-control" id="volY" placeholder="">
+                      <label class="" for="">RSI ABOVE</label>
+                        <input type="number" class="form-control" id="rsi-above2" placeholder="">
+                    </div>  
+                  </div>    
+                    
+                  <h6>CHART DATA</h6>    
+                  <div class="form-row align-items-center">
+                    <div class="col-sm-2 my-1">
+                      <label class="" for="">MA PERIODS > </label>
+                        <input type="number" class="form-control" id="MAP1" placeholder="">
+                    </div>
+                    <div class="col-sm-2 my-1">
+                      <label class="" for="">MA PERIODS</label>
+                        <input type="number" class="form-control" id="MAP2" placeholder="">
                     </div>  
                   </div>    
                   <button class="btn btn-success btn-sm mt-2" type="button" onclick="analyseData();">ANALYSE</button>

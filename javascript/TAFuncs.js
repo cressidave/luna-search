@@ -73,7 +73,8 @@
             prevAVGGain = dataOBj[i].avgGain;
             prevAVGLoss = dataOBj[i].avgLoss;
             
-            data[i].RSI = { rsi: dataOBj[i].rsi, rs: dataOBj[i].rs };
+            data[i].RSI = data[i].RSI || {};
+            data[i].RSI['p'+periods] = { rsi: dataOBj[i].rsi, rs: dataOBj[i].rs };
             
         }        
         
@@ -89,18 +90,11 @@
 
     function SMA(data, periods){
         
-        var dataOBj = [];
-        
-        var SMA = new Array(arrayPrices.length -1).fill(null);
-        var pr = 0;
+        var sma = 0;
         
         periods = typeof periods !== 'undefined' ? periods : 14;
+
         
-        
-        if(arrayPrices.length < periods){
-            return 0;
-        }
-            
         for(let i = 0 ; i < data.length; i++){
             
             // Skip periods where we can not calculate
@@ -109,20 +103,18 @@
             }
             
             // Calculate
-            pr = 0;
+            sma = 0;
             for(let n = periods-1; n >= 0; n--){
-                pr = parseFloat(arrayPrices[i - n]) + pr;
+                sma = parseFloat(data[i - n].c) + sma;
             }
-            pr = pr / periods;
+            sma = sma / periods;
                 
-            SMA[i] = pr;
-            
+            data[i].SMA = data[i].SMA || {};
+            data[i].SMA['p'+periods] = sma;
             
         }
         
-        
-        return SMA;
-        
+        return data;
         
         
     }

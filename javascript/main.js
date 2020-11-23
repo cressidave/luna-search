@@ -19,7 +19,7 @@
 /* ---------------------------------------------------------------------------------------- */
 
     $(document).ready(function(){
-        
+ 
         loadMarket($('body').data('market'));
         
     });
@@ -128,40 +128,38 @@
         var rsiBelow    = parseInt($('#rsi-below').val());
         var rsiAbove    = parseInt($('#rsi-above').val());
         
-        var volX    = parseInt($('#volX').val());
-        var volY    = parseInt($('#volY').val());
+        var rsiPeriod2   = parseInt($('#rsi-period2').val());
+        var rsiAbove2    = parseInt($('#rsi-above2').val());
+
+        var MAP1    = parseInt($('#MAP1').val());
+        var MAP2    = parseInt($('#MAP2').val());
         
         // BUILD RSI
         RSI(DATA15m, rsiPeriod);
+        RSI(DATA15m, rsiPeriod2);
+        SMA(DATA15m, MAP1);
+        SMA(DATA15m, MAP2);
+        
+        var skip = (rsiPeriod > rsiPeriod2)? rsiPeriod+2: rsiPeriod2+2;
+        
         var data = { data: [], data1: [], totalTrades: 0, totalPL: 0, labels: [] };
-        for(let i = rsiPeriod+2; i < DATA15m.length; i++){
+        for(let i = skip; i < DATA15m.length; i++){
             
             if(typeof DATA15m[i-2].RSI == 'undefined'){
                 console.log("SKIPPED DATA - NO RSI - ITEM: "+i);
                 continue;
             }
-            
-            
-            // Volume
-            var volX_total = 0;
-            var volY_total = 0;
-            for(let n = 1; n <= volX; n++ ){
-                volX_total += parseFloat( DATA15m[i-n].vol );
-            }
-            
-            for(let n = 1; n <= volY; n++ ){
-                volY_total += parseFloat( DATA15m[i-n].vol );
-            }
-            
-            volX_total = volX_total / volX;
-            volY_total = volY_total / volY;
+        
             
             var d = DATA15m[i];
             var p = parseFloat(d.classify.profit);
-            var r = parseFloat(d.RSI.rsi) ;
-            r =  DATA15m[i-1].RSI.rsi - DATA15m[i-2].RSI.rsi;
+            var r = parseFloat(d.RSI["p"+rsiPeriod].rsi) ;
+            r =  DATA15m[i-1].RSI["p"+rsiPeriod].rsi - DATA15m[i-2].RSI["p"+rsiPeriod].rsi;
             
-            if(DATA15m[i-2].RSI.rsi <= rsiBelow && DATA15m[i-1].RSI.rsi  > rsiAbove && volX_total >= volY_total){
+            var m1 = DATA15m[i-1].SMA['p'+MAP1];
+            var m2 = DATA15m[i-1].SMA['p'+MAP2];
+            
+            if(DATA15m[i-2].RSI["p"+rsiPeriod].rsi <= rsiBelow && DATA15m[i-1].RSI["p"+rsiPeriod].rsi  > rsiAbove && DATA15m[i-1].RSI["p"+rsiPeriod2].rsi  > rsiAbove2 && m1 >= m2){
                 data.totalTrades++;
                 data.totalPL += p;
                 if(p > 0){
@@ -172,7 +170,7 @@
             }
         }
         
-        console.log(data)
+        //console.log(data)
         
         $('#analyseOutput').html('<p>TRADES: '+data.totalTrades+'</p>');
         $('#analyseOutput').append('<p>P&L: '+data.totalPL+'</p>');
@@ -216,13 +214,23 @@
         var rsiBelow    = parseInt($('#rsi-below').val());
         var rsiAbove    = parseInt($('#rsi-above').val());
         
-        var volX    = parseInt($('#volX').val());
-        var volY    = parseInt($('#volY').val());
+        var rsiPeriod2   = parseInt($('#rsi-period2').val());
+        var rsiAbove2    = parseInt($('#rsi-above2').val());
+
+        var MAP1    = parseInt($('#MAP1').val());
+        var MAP2    = parseInt($('#MAP2').val());
         
         // BUILD RSI
         RSI(DATA15m, rsiPeriod);
+        RSI(DATA15m, rsiPeriod2);
+        SMA(DATA15m, MAP1);
+        SMA(DATA15m, MAP2);
+        
+        console.log(DATA15m)
+        
+        var skip = (rsiPeriod > rsiPeriod2)? rsiPeriod+2: rsiPeriod2+2;
         var trades = { trades: 0, missedTrades: 0, nextTradeTime: 0, data: [0], data1:[100], labels: [0] };
-        for(let i = rsiPeriod+2; i < DATA15m.length; i++){
+        for(let i = skip; i < DATA15m.length; i++){
             
             if(typeof DATA15m[i-2].RSI == 'undefined'){
                 console.log("SKIPPED DATA - NO RSI - ITEM: "+i);
@@ -232,25 +240,11 @@
             var d = DATA15m[i];
             var t = parseInt(d.openTime)/1000;
             var p = parseFloat(d.classify.profit);
-            var r = parseFloat(d.RSI.rsi) ;
-            r =  DATA15m[i-1].RSI.rsi - DATA15m[i-2].RSI.rsi;
+                       
+            var m1 = DATA15m[i-1].SMA['p'+MAP1];
+            var m2 = DATA15m[i-1].SMA['p'+MAP2];
             
-            
-            // Volume
-            var volX_total = 0;
-            var volY_total = 0;
-            for(let n = 1; n <= volX; n++ ){
-                volX_total += parseFloat( DATA15m[i-n].vol );
-            }
-            
-            for(let n = 1; n <= volY; n++ ){
-                volY_total += parseFloat( DATA15m[i-n].vol );
-            }
-            
-            volX_total = volX_total / volX;
-            volY_total = volY_total / volY;
-            
-            if(DATA15m[i-2].RSI.rsi <= rsiBelow && DATA15m[i-1].RSI.rsi  > rsiAbove && volX_total >= volY_total){
+            if(DATA15m[i-2].RSI["p"+rsiPeriod].rsi <= rsiBelow && DATA15m[i-1].RSI["p"+rsiPeriod].rsi  > rsiAbove && DATA15m[i-1].RSI["p"+rsiPeriod2].rsi  > rsiAbove2 && m1 >= m2){
                 
                 if(t > trades.nextTradeTime){
                     
@@ -268,8 +262,6 @@
 
             }
         }
-        
-        console.log(trades);
         
         var ctx = document.getElementById('chart2').getContext('2d');
         if(chart2 !== null){
