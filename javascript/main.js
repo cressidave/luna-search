@@ -37,16 +37,19 @@
         switch(selection){
             
             case 'ETHUSDT':
+                DATA1d = JSON.parse(ETHUSDT1d);
                 DATA15m = JSON.parse(ETHUSDT15m);
                 DATA1m = JSON.parse(ETHUSDT1m); 
             break;
             
             case 'XRPBTC':
+                DATA1d = JSON.parse(XRPBTC1d);
                 DATA15m = JSON.parse(XRPBTC15m);
                 DATA1m = JSON.parse(XRPBTC1m); 
             break;
                                 
             default:
+                DATA1d = JSON.parse(BTCUSDT1d);
                 DATA15m = JSON.parse(BTCUSDT15m);
                 DATA1m = JSON.parse(BTCUSDT1m);    
                 
@@ -124,56 +127,68 @@
 
     function analyseData(){
         
-        var rsiPeriod   = parseInt($('#rsi-period').val());
-        var rsiBelow    = parseInt($('#rsi-below').val());
-        var rsiAbove    = parseInt($('#rsi-above').val());
+        var maPeriod   = parseInt($('#ma-period').val());
         
+        var rsiPeriod1   = parseInt($('#rsi-period1').val());
         var rsiPeriod2   = parseInt($('#rsi-period2').val());
-        var rsiAbove2    = parseInt($('#rsi-above2').val());
 
-        var MAP1    = parseInt($('#MAP1').val());
-        var MAP2    = parseInt($('#MAP2').val());
         
         // BUILD RSI
-        RSI(DATA15m, rsiPeriod);
+        RSI(DATA15m, rsiPeriod1);
         RSI(DATA15m, rsiPeriod2);
-        SMA(DATA15m, MAP1);
-        SMA(DATA15m, MAP2);
         
-        var skip = (rsiPeriod > rsiPeriod2)? rsiPeriod+2: rsiPeriod2+2;
+        SMA(DATA1d, maPeriod)
+ 
+
         
-        var data = { data: [], data1: [], totalTrades: 0, totalPL: 0, labels: [] };
+        var skip = (rsiPeriod1 > rsiPeriod2)? rsiPeriod1+2: rsiPeriod2+2;
+        
+        var data = { data: [], data1: [], totalTrades: 0, avg: { win: 0, loss: 0 }, totalPL: 0, winners: 0, labels: [] };
         for(let i = skip; i < DATA15m.length; i++){
             
             if(typeof DATA15m[i-2].RSI == 'undefined'){
                 console.log("SKIPPED DATA - NO RSI - ITEM: "+i);
                 continue;
             }
-        
+            
+            if(typeof DATA15m[i-2].RSI["p"+rsiPeriod1] == 'undefined' || typeof DATA15m[i-2].RSI["p"+rsiPeriod2] == 'undefined'){
+                continue;
+            }
+            
             
             var d = DATA15m[i];
+            var t = parseInt(d.openTime)/1000;
             var p = parseFloat(d.classify.profit);
-            var r = parseFloat(d.RSI["p"+rsiPeriod].rsi) ;
-            r =  DATA15m[i-1].RSI["p"+rsiPeriod].rsi - DATA15m[i-2].RSI["p"+rsiPeriod].rsi;
+            var d1ma = getDayData(t, maPeriod);
+            var r = DATA15m[i-1].RSI["p"+rsiPeriod1].rsi - DATA15m[i-2].RSI["p"+rsiPeriod1].rsi;
             
-            var m1 = DATA15m[i-1].SMA['p'+MAP1];
-            var m2 = DATA15m[i-1].SMA['p'+MAP2];
+            //console.log(d1ma)
             
-            if(DATA15m[i-2].RSI["p"+rsiPeriod].rsi <= rsiBelow && DATA15m[i-1].RSI["p"+rsiPeriod].rsi  > rsiAbove && DATA15m[i-1].RSI["p"+rsiPeriod2].rsi  > rsiAbove2 && m1 >= m2){
+            if(d1ma == false){
+                continue;
+            }
+            
+            if(DATA15m[i-2].RSI["p"+rsiPeriod1].rsi <= DATA15m[i-2].RSI["p"+rsiPeriod2].rsi && DATA15m[i-1].RSI["p"+rsiPeriod1].rsi > DATA15m[i-1].RSI["p"+rsiPeriod2].rsi && d.o > d1ma ){
                 data.totalTrades++;
                 data.totalPL += p;
                 if(p > 0){
+                    data.winners++;
                     data.data.push( {x: r, y: p} );
+                    data.avg.win += p;
                 }else{
                     data.data1.push( {x: r, y: p} );
+                    data.avg.loss += p;
                 }
             }
         }
         
-        //console.log(data)
+        console.log(data)
         
-        $('#analyseOutput').html('<p>TRADES: '+data.totalTrades+'</p>');
-        $('#analyseOutput').append('<p>P&L: '+data.totalPL+'</p>');
+        $('#analyseOutput').html('<p class="m-0">TRADES: '+data.totalTrades+'</p>');
+        $('#analyseOutput').append('<p class="m-0">WINS: '+data.winners+' ['+ ( (data.winners / data.totalTrades) * 100 ).toFixed(2) +'%]</p>');
+        $('#analyseOutput').append('<p class="m-0">AVG WIN: '+ ( (data.avg.win / data.winners) ).toFixed(2) +'%</p>');
+        $('#analyseOutput').append('<p class="m-0">AVG LOSS: '+ ( (data.avg.loss / (data.totalTrades-data.winners)) ).toFixed(2) +'%</p>');
+        $('#analyseOutput').append('<p class="m-0">P&L: '+data.totalPL+'</p>');
         
         
         var ctx = document.getElementById('chart1').getContext('2d');
@@ -210,25 +225,13 @@
 
     function simulateTrading(){
         
-        var rsiPeriod   = parseInt($('#rsi-period').val());
-        var rsiBelow    = parseInt($('#rsi-below').val());
-        var rsiAbove    = parseInt($('#rsi-above').val());
+        var maPeriod   = parseInt($('#ma-period').val());
         
+        var rsiPeriod1   = parseInt($('#rsi-period1').val());
         var rsiPeriod2   = parseInt($('#rsi-period2').val());
-        var rsiAbove2    = parseInt($('#rsi-above2').val());
 
-        var MAP1    = parseInt($('#MAP1').val());
-        var MAP2    = parseInt($('#MAP2').val());
-        
-        // BUILD RSI
-        RSI(DATA15m, rsiPeriod);
-        RSI(DATA15m, rsiPeriod2);
-        SMA(DATA15m, MAP1);
-        SMA(DATA15m, MAP2);
-        
-        console.log(DATA15m)
-        
-        var skip = (rsiPeriod > rsiPeriod2)? rsiPeriod+2: rsiPeriod2+2;
+          
+        var skip = (rsiPeriod1 > rsiPeriod2)? rsiPeriod+2: rsiPeriod2+2;
         var trades = { trades: 0, missedTrades: 0, nextTradeTime: 0, data: [0], data1:[100], labels: [0] };
         for(let i = skip; i < DATA15m.length; i++){
             
@@ -237,14 +240,22 @@
                 continue;
             }
             
+            if(typeof DATA15m[i-2].RSI["p"+rsiPeriod1] == 'undefined' || typeof DATA15m[i-2].RSI["p"+rsiPeriod2] == 'undefined'){
+                continue;
+            }
+        
+            
             var d = DATA15m[i];
             var t = parseInt(d.openTime)/1000;
             var p = parseFloat(d.classify.profit);
-                       
-            var m1 = DATA15m[i-1].SMA['p'+MAP1];
-            var m2 = DATA15m[i-1].SMA['p'+MAP2];
+                                   
+            var d1ma = getDayData(t, maPeriod);
             
-            if(DATA15m[i-2].RSI["p"+rsiPeriod].rsi <= rsiBelow && DATA15m[i-1].RSI["p"+rsiPeriod].rsi  > rsiAbove && DATA15m[i-1].RSI["p"+rsiPeriod2].rsi  > rsiAbove2 && m1 >= m2){
+            if(d1ma == false){
+                continue;
+            }
+            
+            if(DATA15m[i-2].RSI["p"+rsiPeriod1].rsi <= DATA15m[i-2].RSI["p"+rsiPeriod2].rsi && DATA15m[i-1].RSI["p"+rsiPeriod1].rsi > DATA15m[i-1].RSI["p"+rsiPeriod2].rsi && d.o > d1ma){
                 
                 if(t > trades.nextTradeTime){
                     
@@ -253,6 +264,7 @@
                     trades.data1.push(  trades.data1[ trades.data1.length-1 ] + ( (p/100) * trades.data1[ trades.data1.length-1 ]) );
                     trades.labels.push( unix2time(d.openTime) )
                     trades.nextTradeTime = t + parseInt(d.classify.minutes)/1000;
+                    
                         
                 }else{
                     
@@ -262,7 +274,7 @@
 
             }
         }
-        
+                
         var ctx = document.getElementById('chart2').getContext('2d');
         if(chart2 !== null){
             chart2.destroy();
@@ -285,6 +297,29 @@
         });
         
     }
+
+
+/* ---------------------------------------------------------------------------------------- */
+/* GET DAY DATA   			                        										*/
+/* ---------------------------------------------------------------------------------------- */
+
+    function getDayData(timestamp, periods){
+        
+        for(let i = 0; i < DATA1d.length; i++){
+            
+            if( typeof DATA1d[i].SMA == 'undefined'){
+                continue;
+            }
+            
+            if( timestamp > (DATA1d[i].openTime/1000) && timestamp <  ((DATA1d[i].openTime/1000) + (60*60*24))  ){
+                return DATA1d[i].SMA['p'+periods];
+            }
+            
+        }
+        return false;
+        
+    }
+
 
 /* ---------------------------------------------------------------------------------------- */
 /* TRAIN DATA   			                        										*/

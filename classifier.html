@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>LUNA VIEW</title>
+<script src="candle-data/ETHUSDT1d.json" type="text/javascript"></script>
 <script src="candle-data/ETHUSDT15m.json" type="text/javascript"></script>
 <script src="candle-data/ETHUSDT1m.json" type="text/javascript"></script>
 <script src="javascript/TAFuncs.js" type="text/javascript"></script>    
@@ -13,7 +14,7 @@
 <script src="javascript/vendor/tensorFlow/tfjs-vis.min.js" type="text/javascript"></script>    
 <script src="javascript/vendor/bootstrap/bootstrap-4.4.1.js" type="text/javascript"></script>    
 <script src="javascript/vendor/bootstrap/popper.min.js" type="text/javascript"></script>
-<script src="javascript/vendor/chartJS/chartJS.2.8.0js" type="text/javascript"></script>  
+<script src="javascript/vendor/chartJS/chartJS.2.8.0.js" type="text/javascript"></script>  
 <script src="javascript/main.js" type="text/javascript"></script>   
 <link href="css/bootstrap-4.4.1.css" rel="stylesheet" type="text/css">
 </head>
@@ -70,43 +71,25 @@
             <div class="col-12 mt-4 mb-5">
                 <h5>CHART DATA</h5>
                 <form>
-                  <h6>RSI SETTINGS</h6>    
+                  <h6>RSI CROSSOVER</h6>    
                   <div class="form-row align-items-center">
-                    <div class="col-sm-2 my-1">
+                    <div class="col-sm-4 my-1">
+                      <label class="" for="">RSI PERIODS CROSS ABOVE</label>
+                      <input type="number" class="form-control" id="rsi-period1" placeholder="">
+                    </div>
+                    <div class="col-sm-4 my-1">
                       <label class="" for="">RSI PERIODS</label>
-                      <input type="number" class="form-control" id="rsi-period" placeholder="">
-                    </div>
-                    <div class="col-sm-2 my-1">
-                      <label class="" for="">RSI BELOW</label>
-                        <input type="number" class="form-control" id="rsi-below" placeholder="">
-                    </div>
-                    <div class="col-sm-2 my-1">
-                      <label class="" for="">RSI RISE ABOVE</label>
-                        <input type="number" class="form-control" id="rsi-above" placeholder="">
+                        <input type="number" class="form-control" id="rsi-period2" placeholder="">
                     </div>  
                   </div>
                   <div class="form-row align-items-center">
-                    <div class="col-sm-2 my-1">
-                      <label class="" for="">RSI PERIODS</label>
-                      <input type="number" class="form-control" id="rsi-period2" placeholder="">
+                    <div class="col-sm-4 my-1">
+                      <label class="" for="">PRICE ABOVE 1 DAY MA PERIODS</label>
+                      <input type="number" class="form-control" id="ma-period" placeholder="">
                     </div>
-                    <div class="col-sm-2 my-1">
-                      <label class="" for="">RSI ABOVE</label>
-                        <input type="number" class="form-control" id="rsi-above2" placeholder="">
-                    </div>  
+
                   </div>    
-                    
-                  <h6>CHART DATA</h6>    
-                  <div class="form-row align-items-center">
-                    <div class="col-sm-2 my-1">
-                      <label class="" for="">MA PERIODS > </label>
-                        <input type="number" class="form-control" id="MAP1" placeholder="">
-                    </div>
-                    <div class="col-sm-2 my-1">
-                      <label class="" for="">MA PERIODS</label>
-                        <input type="number" class="form-control" id="MAP2" placeholder="">
-                    </div>  
-                  </div>    
+  
                   <button class="btn btn-success btn-sm mt-2" type="button" onclick="analyseData();">ANALYSE</button>
                 </form>
                 <div id="analyseOutput" class="col-sm-6">
